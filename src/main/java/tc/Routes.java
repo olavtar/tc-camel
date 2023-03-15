@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test;
+package tc;
 
 import static org.apache.camel.builder.endpoint.StaticEndpointBuilders.log;
 import static org.apache.camel.builder.endpoint.StaticEndpointBuilders.timer;

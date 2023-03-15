@@ -1,4 +1,4 @@
-package test;
+package tc;
 
 public class Package {
 

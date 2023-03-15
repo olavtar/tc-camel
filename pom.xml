@@ -69,7 +69,7 @@
             <artifactId>camel-quarkus-direct</artifactId>
         </dependency>
 
-        <!-- test dependencies -->
+        <!-- tc dependencies -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
