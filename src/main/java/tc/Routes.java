@@ -46,24 +46,26 @@ public class Routes extends RouteBuilder {
         // from("platform-http:/hello").setBody(constant("Hello from Camel Quarkus!"));
 
         restConfiguration().bindingMode(RestBindingMode.json);
-
         rest("/packages").get().to("direct:getPackages")
 
-                .post().type(Package.class).to("direct:addPackage");
+                .post().type(Package[].class).to("direct:addPackage");
 
         from("direct:getPackages").setBody().constant(packages);
 
-       // from("direct:addPackage").process().body(Package.class, packages::add).setBody().constant(packages);
+        // from("direct:addPackage").process().body(Package.class, packages::add).setBody().constant(packages);
         from("direct:addPackage").process(this::addRHRecommendation);
     }
 
     private void addRHRecommendation(Exchange exchange) {
         Message message = new DefaultMessage(exchange.getContext());
-        Package pac = exchange.getMessage().getBody(Package.class);
+        Package[] pac = exchange.getMessage().getBody(Package[].class);
+        List list = new ArrayList();
+        for (Package item : pac) {
+            String rhPackage = item.getArtifactId() + item.getVersion() + "-redHatVersion";
+            list.add(rhPackage);
+        }
 
-        // Package pac = message.getBody(Package.class);
-        String rhPackage = pac.getArtifactId() + pac.getVersion() + "-redHatVersion";
-        message.setBody(rhPackage);
+        message.setBody(list);
         exchange.setMessage(message);
     }
 
