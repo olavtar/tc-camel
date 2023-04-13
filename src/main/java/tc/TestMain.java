@@ -28,7 +28,6 @@ public class TestMain {
             for (File f : listOfFiles) {
                 if (f.getName().contains(id)) {
                     found = true;
-                    System.out.println(f.getName());
                     byte[] fileData = Files.readAllBytes(f.toPath());
                     // convert json string to object
                     Root root = objectMapper.readValue(fileData, Root.class);
@@ -37,13 +36,10 @@ public class TestMain {
                     for (Vulnerability vulnerability : vulnerabilities) {
                         ProductStatus prodStatus = vulnerability.product_status;
                         if (prodStatus.fixed != null) {
-                            System.out.println("Fixed ");
                             rhContent.setProductStatus("fixed");
                         } else if (prodStatus.known_not_affected != null) {
-                            System.out.println("known_not_effected ");
                             rhContent.setProductStatus("known_not_effected");
                         } else if (prodStatus.known_affected != null) {
-                            System.out.println("known_effected ");
                             rhContent.setProductStatus("known_effected");
                         }
                     }
@@ -56,7 +52,6 @@ public class TestMain {
                     ArrayList<Branch> branches = root.product_tree.branches;
                     Branch branch = getBranch(branches, productReference);
                     String packageData = branch.product.product_identification_helper.purl;
-                    System.out.println(packageData);
                     String[] pkgData = packageData.split("/|@|\\?");
                     MavenPackage mvpkg = new MavenPackage();
                     mvpkg.setGroupId(pkgData[1]);
@@ -71,8 +66,6 @@ public class TestMain {
                 tcModules.add(null);
             }
         }
-        System.out.println(tcModules.size());
-        System.out.println(tcModules);
     }
 
     private static Branch getBranch(ArrayList<Branch> branches, String productId) {

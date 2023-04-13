@@ -20,7 +20,6 @@ import static org.apache.camel.builder.endpoint.StaticEndpointBuilders.log;
 import static org.apache.camel.builder.endpoint.StaticEndpointBuilders.timer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -58,19 +57,18 @@ public class Routes extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-//        restConfiguration().bindingMode(RestBindingMode.json);
-//        rest("/packages").get().to("direct:getPackages")
-//
-//                .post().type(Package[].class).to("direct:addPackage");
-//
-//        from("direct:getPackages").setBody().constant(packages);
-//
-//        // from("direct:addPackage").process().body(Package.class, packages::add).setBody().constant(packages);
-//        from("direct:addPackage").process(this::addRHRecommendation);
+        // restConfiguration().bindingMode(RestBindingMode.json);
+        // rest("/packages").get().to("direct:getPackages")
+        //
+        // .post().type(Package[].class).to("direct:addPackage");
+        //
+        // from("direct:getPackages").setBody().constant(packages);
+        //
+        // // from("direct:addPackage").process().body(Package.class, packages::add).setBody().constant(packages);
+        // from("direct:addPackage").process(this::addRHRecommendation);
 
         restConfiguration().bindingMode(RestBindingMode.json);
-        rest("/tc").get().to("direct:getTc")
-                .post().type(Tc.class).to("direct:addTc");
+        rest("/tc").get().to("direct:getTc").post().type(Tc.class).to("direct:addTc");
         from("direct:getTc").setBody().constant(vexIds);
         from("direct:addTc").process(this::getTCModules);
     }
@@ -88,9 +86,7 @@ public class Routes extends RouteBuilder {
         exchange.setMessage(message);
     }
 
-
     private void getTCModules(Exchange exchange) throws IOException {
-        System.out.println("getTCModules");
         Message message = new DefaultMessage(exchange.getContext());
         Tc tc = exchange.getMessage().getBody(Tc.class);
 
@@ -104,12 +100,10 @@ public class Routes extends RouteBuilder {
         File[] listOfFiles = new File(path).listFiles();
 
         for (String cve : tc.getCves()) {
-            System.out.println("cve: " + cve);
             boolean found = false;
             for (File f : listOfFiles) {
                 if (f.getName().contains(cve)) {
                     found = true;
-                    System.out.println(f.getName());
                     byte[] fileData = Files.readAllBytes(f.toPath());
                     // convert json string to object
                     Root root = objectMapper.readValue(fileData, Root.class);
@@ -118,13 +112,10 @@ public class Routes extends RouteBuilder {
                     for (Vulnerability vulnerability : vulnerabilities) {
                         ProductStatus prodStatus = vulnerability.product_status;
                         if (prodStatus.fixed != null) {
-                            System.out.println("Fixed ");
                             rhContent.setProductStatus("fixed");
                         } else if (prodStatus.known_not_affected != null) {
-                            System.out.println("known_not_effected ");
                             rhContent.setProductStatus("known_not_effected");
                         } else if (prodStatus.known_affected != null) {
-                            System.out.println("known_effected ");
                             rhContent.setProductStatus("known_effected");
                         }
                     }
@@ -137,7 +128,6 @@ public class Routes extends RouteBuilder {
                     ArrayList<Branch> branches = root.product_tree.branches;
                     Branch branch = getBranch(branches, productReference);
                     String packageData = branch.product.product_identification_helper.purl;
-                    System.out.println(packageData);
                     String[] pkgData = packageData.split("/|@|\\?");
                     MavenPackage mvpkg = new MavenPackage();
                     mvpkg.setGroupId(pkgData[1]);
